@@ -17,7 +17,7 @@ const config = {
   collectCoverage: false,
   // 匹配单测 spec 文件。
   // testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(tsx?)$',
-  testRegex: '(/__tests__/.*|(\\.|/)(mock-generate.spec))\\.(tsx?)$',
+  testRegex: '(/__tests__/.*|(\\.|/)(generate.spec))\\.(tsx?)$',
   // 支持的源码后缀名。
   moduleFileExtensions: ['ts', 'js'],
   globals: {

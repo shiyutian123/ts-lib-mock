@@ -1,4 +1,4 @@
-import * as Dot from '../../dotprop/dotprop'
+import * as dot from '../../dotprop/dotprop'
 
 describe('ts-dot-prop methods', () => {
   let obj: any
