@@ -18,8 +18,7 @@
     "no-unsafe-any": false,
     // core lint rules
     "ban": {
-      "options": [
-        {
+      "options": [{
           "name": "parseInt",
           "message": "use #type-coercion -> Number(val)"
         },
@@ -41,7 +40,7 @@
         }
       ]
     },
-    "no-magic-numbers": true,
+    "no-magic-numbers": false,
     "no-require-imports": true,
     "no-boolean-literal-compare": true,
     "no-invalid-this": {

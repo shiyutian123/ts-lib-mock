@@ -77,7 +77,8 @@
     "consola": "2.12.2",
     "dayjs": "1.8.28",
     "mockjs": "1.1.0",
-    "ts-util-is": "1.1.3"
+    "ts-util-is": "1.1.3",
+    "vue-ls": "3.2.1"
   },
   "devDependencies": {
     "@commitlint/cli": "7.2.1",

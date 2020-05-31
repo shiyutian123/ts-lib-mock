@@ -1,5 +1,4 @@
 import { IS_DEV } from '../environment'
-import consola from 'consola'
 import Mock from 'mockjs'
 import {
   isArray,
@@ -9,22 +8,22 @@ import {
   isPlainObject,
   isString,
   isUndefined,
+  isBase64,
 } from 'ts-util-is'
-import dayjs from 'dayjs'
-import { isNumber } from 'util'
+import { isNumber, isBoolean } from 'util'
+import consola from 'consola'
 
 export class MockGenerate {
-  generateMock() {
-    const mockData = Mock.mock({
-      // 属性 list 的值是一个数组，其中含有 1 到 10 个元素
-      'list|1-10': [
-        {
-          // 属性 id 是一个自增数，起始值为 1，每次增 1
-          'id|+1': 1,
-          'name|1-3': 'heidi ',
-        },
-      ],
-    })
+  static getInstance(): MockGenerate {
+    if (this._instance == null) {
+      this._instance = new MockGenerate()
+    }
+    return this._instance
+  }
+  private static _instance: MockGenerate
+
+  generateMock(template) {
+    const mockData = Mock.mock(template)
     /* istanbul ignore next line */
     if (IS_DEV) {
       // tslint:disable-next-line:no-console
@@ -35,7 +34,7 @@ export class MockGenerate {
   }
 
   /**
-   * 生成模板
+   * 根据数据生成模板
    */
   generateMockByData(data) {
     // 获取对象类型，生成字符串
@@ -43,23 +42,71 @@ export class MockGenerate {
     const template = {}
 
     dataKeys.forEach((key) => {
-      if (this.isDateTimeString(data[key])) {
+      const value = data[key]
+
+      if (this.isDateTimeString(value)) {
+        // 日期+时间生成
         template[key] = '@DateTime'
-      } else if (this.isDateString(data[key])) {
+      } else if (this.isDateString(value)) {
+        // 日期+时间生成
         template[key] = '@Date'
-      } else if (isString(data[key]) && this.hasCNString(data[key])) {
-        template[key] = `@CWord(${data[key].length / 3}, ${data[key].length *
-          3})`
-      } else if (isNull(data[key])) {
+      } else if (
+        isString(value) &&
+        `${value}`.toUpperCase().startsWith('@Global'.toUpperCase())
+      ) {
+        template[key] = value
+      } else if (
+        isString(value) &&
+        `${value}`.toUpperCase().startsWith('@Lookup'.toUpperCase())
+      ) {
+        template[key] = value
+      } else if (isString(value) && this.hasCNString(value)) {
+        // 中文生成
+        template[key] = `@CWord(${value.length / 3}, ${value.length * 3})`
+      } else if (isNull(value)) {
+        // jsonnull 转换成字符串
         template[key] = '@String'
-      } else if (isNull(data[key])) {
-        template[key] = '@String'
-      } else if (isNumber(data[key])) {
-        template[key] = '@Float(10, 10000, 1, 2)'
+      } else if (Number.isInteger(value)) {
+        // 整数
+        const valueLength = `${value}`.length
+        template[key] = `@Integer(${Math.pow(10, valueLength - 3)}, ${Math.pow(
+          10,
+          valueLength + 3
+        )})`
+      } else if (isNumber(value)) {
+        // 小数
+        template[key] = '@Float(10, 10000000, 1, 2)'
+      } else if (isObject(value) && !isArray(value)) {
+        // 对象
+        template[key] = this.generateMockByData(value)
+      } else if (isArray(value) && value.length > 0) {
+        // 数组
+        template[`${key}|1-20`] = [this.generateMockByData(value[0])]
+      } else if (isBoolean(value)) {
+        // Boolean值
+        template[key] = '@Boolean'
+      } else if (isString(value) && value.toUpperCase() === value) {
+        // 全大写不做处理
+        template[key] = value
+      } else if (isString(value) && this.isUrl(value)) {
+        // url 生成一个图片的url
+        template[key] = '@Image'
+      } else if (isString(value) && value.toLowerCase() === value) {
+        // 全小写生成随机数
+        // consola.error(
+        //   new RegExp(`[a-z\d]{${value.length - 3}, ${value.length + 3}}`)
+        // )
+        template[key] = new RegExp(
+          `[a-z\\d]{${value.length - 3},${value.length + 3}}`
+        )
+      } else if (isString(value)) {
+        template[key] = `@Word(${value.length / 3},${value.length * 3})`
+      } else {
+        template[key] = value
       }
     })
 
-    consola.success(JSON.stringify(Mock.mock(template)))
+    return template
   }
 
   isDateString(value) {
@@ -74,5 +121,9 @@ export class MockGenerate {
 
   hasCNString(value) {
     return /.*[\u4e00-\u9fa5]+.*$/.test(value)
+  }
+
+  isUrl(value) {
+    return /http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?/.test(value)
   }
 }
