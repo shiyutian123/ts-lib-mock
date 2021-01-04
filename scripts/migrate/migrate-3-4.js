@@ -108,7 +108,6 @@ function updatePackageJson() {
 
   /**
    *
-   * @param {{[packageName:string]:string}} devDependencies
    */
   function removePackages(devDependencies) {
     const depsToRemove = [
