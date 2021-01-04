@@ -31,7 +31,7 @@ const DIST = resolve(ROOT, 'dist')
 
 /**
  * Object literals are open-ended for js checking, so we need to be explicit
- * @type {{entry:{esm5: string, esm2015: string},bundles:string}}
+ * @type {entry:{esm5: string, esm2015: string},bundles:string}
  */
 const PATHS = {
   entry: {
