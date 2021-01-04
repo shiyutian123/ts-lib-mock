@@ -112,7 +112,6 @@ function updatePackageJson() {
 
   /**
    *
-   * @param {{[packageName:string]:string}} scripts
    */
   function removeScripts(scripts) {
     /** @type {string[]} */
